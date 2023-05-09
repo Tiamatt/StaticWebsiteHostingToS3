@@ -3,20 +3,20 @@ AWSTemplateFormatVersion: 2010-09-09
 ## =================== DESCRIPTION =================== ##
 Description: >-
   AWS CloudFormation sample template
-  Create a new S3 bucket and it's policy, configure it to host a static website  
+  - Create a new S3 bucket and it's policy, configure it to host a static website  
 
 ## =================== PARAMETERS =================== ##
 Parameters:
   paramStaticWebsiteHostingBucketName:
     Description: Specify a unique name for S3 bucket that will host static website
     Type: String
-    Default: kali-website-hosting-bucket
+    Default: westworld-website-hosting-bucket
     AllowedPattern: "(?!(^xn--|.+-s3alias$))^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$"  # includes using S3 Transfer Acceleration
     ConstraintDescription: Bucket names must be between 3 (min) and 63 (max) characters long, can consist only of lowercase letters, numbers, dots, and hyphens, must begin and end with a letter or number, etc. 
   paramUniqueTagName:
     Description: Specify a unique name for tag
     Type: String
-    Default: RobbStark
+    Default: static-website-hosting-to-s3
     AllowedPattern: "[\\x20-\\x7E]*"
     ConstraintDescription: Must contain only ASCII characters
 
@@ -43,7 +43,7 @@ Resources:
         IgnorePublicAcls: false
         RestrictPublicBuckets: false
       Tags:
-        - Key: MasteringCF
+        - Key: mastering-cloudformation
           Value:  !Ref paramUniqueTagName
 
   # Create a policy for myStaticWebsiteHostingBucket to give a public access to website
@@ -64,6 +64,7 @@ Resources:
                 - !Ref myStaticWebsiteHostingBucket
                 - /*
 
+## =================== OUTPUT =================== ##
 Outputs:
   outputWebsiteURL:
     Value: !GetAtt 
