@@ -16,12 +16,11 @@ phases:
       - npm install && npm install -g @angular/cli
   build:
     commands:
-      - cd frontend/app-for-aws
       - echo Build process started now
-      - ng build --configuration=production
+      - cd frontend/app-for-aws && ng build --configuration=production
   post_build:
     commands:
       - echo Build process finished, upload artifacts to S3 bucket
       - cd dist/$APP_NAME
       - ls -la
-      - aws s3 sync . s3://my-awsome-bucket-of-files --delete
+      # - aws s3 sync . s3://my-awsome-bucket-of-files --delete

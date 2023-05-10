@@ -73,8 +73,8 @@ Resources:
                   - logs:PutLogEvents
                 Effect: Allow
                 Resource:
-                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${paramCodeBuildProjectName}
-                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${paramCodeBuildProjectName}:*
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${paramCodeBuildProjectName}-CloudWatchLogs
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${paramCodeBuildProjectName}-CloudWatchLogs:*
               # statement to access S3 bucket related data
               - Action:
                   - s3:PutObject
@@ -128,7 +128,7 @@ Resources:
       LogsConfig:
         CloudWatchLogs:
           Status: ENABLED
-          GroupName: !Sub ${paramCodeBuildProjectName}-CloudWatchLogs-BuildLogGroup-Name
+          GroupName: !Sub ${paramCodeBuildProjectName}-CloudWatchLogs
       Tags:
         - Key: mastering-cloudformation
           Value:  !Ref paramUniqueTagName
