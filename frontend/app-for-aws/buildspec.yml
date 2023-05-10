@@ -17,7 +17,8 @@ phases:
   build:
     commands:
       - echo Build process started now
-      - cd frontend/app-for-aws && ng build --configuration=production
+      - cd $CODEBUILD_SRC_DIR/frontend/app-for-aws
+      - ng build --configuration=production
   post_build:
     commands:
       - echo Build process finished, upload artifacts to S3 bucket
