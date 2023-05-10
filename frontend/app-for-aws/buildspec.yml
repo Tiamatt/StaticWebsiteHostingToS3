@@ -25,4 +25,4 @@ artifacts:
   #  get files within the dist folder only
   # base-directory: 'dist'
   files:
-    - '**/*'
+    - $CODEBUILD_SRC_DIR/frontend/app-for-aws
