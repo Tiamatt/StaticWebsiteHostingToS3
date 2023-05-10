@@ -25,4 +25,4 @@ artifacts:
   #  get files within the dist folder only
   # base-directory: 'dist'
   files:
-    - $APP_NAME/frontend/app-for-aws/dist  
+    - kali-find-out/frontend/app-for-aws/dist  
