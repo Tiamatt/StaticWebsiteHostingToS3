@@ -75,7 +75,7 @@ Resources:
                 Resource:
                   - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${paramCodeBuildProjectName}-CloudWatchLogs
                   - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${paramCodeBuildProjectName}-CloudWatchLogs:*
-              # statement to access S3 bucket related data
+              # statement to access S3 bucket that hosts static website (CodeBuild will save Artofacts there)
               - Action:
                   - s3:PutObject
                   - s3:GetObject
@@ -87,7 +87,7 @@ Resources:
                   - !Sub arn:aws:s3:::${paramStaticWebsiteHostingBucketName}
                   - !Sub arn:aws:s3:::${paramStaticWebsiteHostingBucketName}/*
 
-  # This resource allows to connect CodeBuild with Github using Personal Access Token
+  # Allow CodeBuild to connect to target Github repo (where static website locates) using Github Personal Access Token 
   myCodeBuildSourceCredential:
     Type: AWS::CodeBuild::SourceCredential
     Properties:
