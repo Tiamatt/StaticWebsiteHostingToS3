@@ -118,9 +118,9 @@ Resources:
       Environment: # use Linux OS for build
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: aws/codebuild/standard:4.0
+        Image: aws/codebuild/amazonlinux2-aarch64-standard:3.0
       ServiceRole: !Ref myCodeBuildProjectRole # !Sub 'arn:aws:iam::${AWS::AccountId}:role/${myCodeBuildRole}'
-      TimeoutInMinutes: 15
+      TimeoutInMinutes: 5
       Artifacts: # drop the build artifacts of S3 bucket that hosts static website
         Type: S3
         Name: !Ref paramStaticWebsiteAppName
