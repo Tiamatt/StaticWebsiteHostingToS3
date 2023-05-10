@@ -7,11 +7,6 @@ phases:
     runtime-versions:
        nodejs: 18
     commands:
-      # - echo Uninstall Node.js v10 from CodeBuild image
-      # - yes | n uninstall
-      # - echo Install Node.js v18
-      # - curl -sL https://deb.nodesource.com/setup_18.x | bash -
-      # - yum install -y nodejs
       - echo Install Angular CLI and all node_modules 
       - cd $CODEBUILD_SRC_DIR/frontend/app-for-aws
       - npm install && npm install -g @angular/cli
