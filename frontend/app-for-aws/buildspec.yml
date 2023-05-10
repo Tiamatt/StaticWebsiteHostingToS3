@@ -7,12 +7,12 @@ phases:
     runtime-versions:
        nodejs: 10
     commands:
-      - echo Uninstall Node.js v10 from CodeBuild image
-      - yes | n uninstall
-      - echo Install Node.js v12
-      - curl -sL https://deb.nodesource.com/setup_18.x | bash -
-      - apt-get install -y nodejs
-      - echo Install Angular CLI
+      # - echo Uninstall Node.js v10 from CodeBuild image
+      # - yes | n uninstall
+      # - echo Install Node.js v18
+      # - curl -sL https://deb.nodesource.com/setup_18.x | bash -
+      # - yum install -y nodejs
+      - echo Install Angular CLI and all node_modules 
       - npm install && npm install -g @angular/cli
   build:
     commands:
