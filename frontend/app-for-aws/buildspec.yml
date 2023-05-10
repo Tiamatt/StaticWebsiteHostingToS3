@@ -22,7 +22,6 @@ phases:
       - ls -la
       # - aws s3 sync . s3://my-awsome-bucket-of-files --delete
 artifacts:
+  discard-paths: yes
   files:
     - '**/*'
-      discard-paths: yes
-      base-directory: 'dist'
