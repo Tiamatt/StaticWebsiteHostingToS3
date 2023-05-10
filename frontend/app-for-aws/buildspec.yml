@@ -23,7 +23,6 @@ phases:
       # - aws s3 sync . s3://my-awsome-bucket-of-files --delete
 artifacts:
   #  get files within the dist folder only
-  discard-paths: yes
   base-directory: 'dist'
   files:
     - '**/*'
