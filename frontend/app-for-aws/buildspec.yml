@@ -16,6 +16,7 @@ phases:
       - npm install && npm install -g @angular/cli
   build:
     commands:
+      - cd frontend/app-for-aws
       - echo Build process started now
       - ng build --configuration=production
   post_build:
