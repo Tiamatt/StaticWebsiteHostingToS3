@@ -5,17 +5,22 @@ env:
 phases:
   install:
     runtime-versions:
-      nodejs: 14.x
+       nodejs: 10
     commands:
-      - echo install process started
+      - echo Uninstall Node.js v10 from CodeBuild image
+      - yes | n uninstall
+      - echo Install Node.js v12
+      - curl -sL https://deb.nodesource.com/setup_18.x | bash -
+      - apt-get install -y nodejs
+      - echo Install Angular CLI
       - npm install && npm install -g @angular/cli
   build:
     commands:
-      - echo build process started now
+      - echo Build process started now
       - ng build --configuration=production
   post_build:
     commands:
-      - echo build process finished, upload artifacts to S3 bucket
+      - echo Build process finished, upload artifacts to S3 bucket
       - cd dist/$APP_NAME
       - ls -la
       - aws s3 sync . s3://my-awsome-bucket-of-files --delete
