@@ -1,6 +1,7 @@
 version: 0.2
 env:
   variables:
+    APP_ENV: 'prod'
     APP_NAME: 'app-for-aws'
 phases:
   install:
@@ -18,11 +19,13 @@ phases:
   post_build:
     commands:
       - echo Build process finished, upload artifacts to S3 bucket
+      - ls -la
       - cd dist/$APP_NAME
       - ls -la
       # - aws s3 sync . s3://my-awsome-bucket-of-files --delete
 artifacts:
   #  get files within the dist folder only
   # base-directory: 'dist'
+  base-directory: 'frontend/app-for-aws/dist*'
   files:
     - '**/*' # kali-find-out/frontend/app-for-aws/dist  
