@@ -33,10 +33,6 @@ Parameters:
     Description: Specify an existing S3 bucket that hosts static website
     Type: String
     Default: westworld-website-hosting-bucket
-  paramStaticWebsiteAppName:
-    Description: Specify kali
-    Type: String
-    Default: kali-find-out
   paramUniqueTagName:
     Description: Specify a unique name for tag
     Type: String
@@ -124,7 +120,7 @@ Resources:
       TimeoutInMinutes: 5
       Artifacts: # drop the build artifacts of S3 bucket that hosts static website
         Type: S3
-        Name: !Ref paramStaticWebsiteAppName
+        Name: '/' # store the artifact in the root of the output bucket
         Location: !Sub arn:aws:s3:::${paramStaticWebsiteHostingBucketName}
       LogsConfig:
         CloudWatchLogs:

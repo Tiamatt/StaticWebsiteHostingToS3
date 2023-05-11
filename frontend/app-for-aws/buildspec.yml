@@ -2,7 +2,6 @@ version: 0.2
 env:
   variables:
     APP_ENV: 'prod'
-    APP_NAME: 'app-for-aws'
 phases:
   install:
     runtime-versions:
@@ -20,7 +19,7 @@ phases:
     commands:
       - echo Build process finished, upload artifacts to S3 bucket
       - ls -la
-      - cd dist/$APP_NAME
+      - cd dist/app-for-aws
       - ls -la
       # - aws s3 sync . s3://my-awsome-bucket-of-files --delete
 artifacts:
