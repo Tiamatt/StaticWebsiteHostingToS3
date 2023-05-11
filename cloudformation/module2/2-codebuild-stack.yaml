@@ -122,6 +122,7 @@ Resources:
         Type: S3
         Name: '/' # store the artifact in the root of the output bucket
         Location: !Sub arn:aws:s3:::${paramStaticWebsiteHostingBucketName}
+        EncryptionDisabled: True #disable the encryption of artifacts in a build to see html pages
       LogsConfig:
         CloudWatchLogs:
           Status: ENABLED
