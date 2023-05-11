@@ -21,7 +21,6 @@ phases:
       - ls -la
       - cd dist/app-for-aws
       - ls -la
-      # - aws s3 sync . s3://my-awsome-bucket-of-files --delete
 artifacts:
   #  get files within the dist folder only
   base-directory: 'frontend/app-for-aws/dist*'
