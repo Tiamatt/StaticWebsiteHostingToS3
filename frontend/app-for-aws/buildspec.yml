@@ -25,7 +25,7 @@ phases:
       # - aws s3 sync . s3://my-awsome-bucket-of-files --delete
 artifacts:
   #  get files within the dist folder only
-  # base-directory: 'dist'
   base-directory: 'frontend/app-for-aws/dist*'
+  discard-paths: yes
   files:
-    - '**/*' # kali-find-out/frontend/app-for-aws/dist  
+    - '**/*'  
