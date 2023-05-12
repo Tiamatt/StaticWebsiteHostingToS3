@@ -70,12 +70,4 @@ Outputs:
     Value: !GetAtt 
       - myStaticWebsiteHostingBucket
       - WebsiteURL
-    Description: URL for website hosted on S3 bucket
-  outputS3BucketSecureURL:
-    Value: !Join
-      - ''
-      - - 'https://'
-        - !GetAtt 
-          - myStaticWebsiteHostingBucket
-          - DomainName
-    Description: Name of S3 bucket to hold website content
+    Description: Static website URL
