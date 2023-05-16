@@ -12,7 +12,7 @@ Parameters:
     Type: String
     MinLength: 10
     ConstraintDescription: Personal GitHub access token is missing
-    Description: Provide your personal GitHub access token for CodeBuild to access your GitHub repo
+    Description: Provide your personal GitHub access token for CodeBuild to access your GitHub repo 
   paramCodeBuildProjectName:
     Description: Specify CodeBuild project name
     Type: String
@@ -20,7 +20,7 @@ Parameters:
     MaxLength: 255
     AllowedPattern: ^[a-zA-Z][-a-zA-Z0-9]*$
     ConstraintDescription: Should contain uppercase/lowercase letters and digits from 0 to 9 only
-    Default: cicd-codebuild-for-static-website-hosting-to-s3
+    Default: westworld-codebuild-for-website-hosting
   paramGitHubLink:
     Type: String
     Description: Provide your GitHub link with source code for static website
@@ -58,7 +58,7 @@ Resources:
               Service:
                 - codebuild.amazonaws.com
       Policies:
-        - PolicyName: !Sub codebuild-policy-for-${paramCodeBuildProjectName}
+        - PolicyName: !Sub policy-for-${paramCodeBuildProjectName}
           PolicyDocument:
             Version: 2012-10-17
             Statement:
@@ -82,7 +82,9 @@ Resources:
                 Resource:
                   - !Sub arn:aws:s3:::${paramStaticWebsiteHostingBucketName}
                   - !Sub arn:aws:s3:::${paramStaticWebsiteHostingBucketName}/*
-
+      Tags:
+        - Key: mastering-cloudformation
+          Value:  !Ref paramUniqueTagName
   # Allow CodeBuild to connect to target Github repo (where static website locates) using Github Personal Access Token 
   myCodeBuildSourceCredential:
     Type: AWS::CodeBuild::SourceCredential
@@ -90,6 +92,9 @@ Resources:
       AuthType: PERSONAL_ACCESS_TOKEN
       ServerType: GITHUB
       Token: !Ref paramPersonalGitHubAccessToken
+      Tags:
+        - Key: mastering-cloudformation
+          Value:  !Ref paramUniqueTagName
 
   # Create a new CodeBuild project that gets the source code from AWS CodeCommit and drops the build artifacts into S3 bucket
   myCodeBuildProject:

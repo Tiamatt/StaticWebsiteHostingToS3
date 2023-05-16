@@ -1,8 +1,9 @@
 version: 0.2
-env:
-  variables:
-    APP_ENV: 'prod'
+# env:
+#   variables:
+#     APP_ENV: 'prod'
 phases:
+  # use the install phase only for installing packages in the build environment
   install:
     runtime-versions:
        nodejs: 18
@@ -18,12 +19,11 @@ phases:
   post_build:
     commands:
       - echo Build process finished, upload artifacts to S3 bucket
-      - ls -la
       - cd dist/app-for-aws
       - ls -la
 artifacts:
   #  get files within the dist folder only
   base-directory: 'frontend/app-for-aws/dist*'
-  discard-paths: yes
+  # discard-paths: yes
   files:
     - '**/*'  
