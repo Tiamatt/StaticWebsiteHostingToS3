@@ -19,7 +19,7 @@ Parameters:
     MinLength: 10
     MaxLength: 255
     AllowedPattern: ^[a-zA-Z][-a-zA-Z0-9]*$
-    ConstraintDescription: Should contain uppercase/lowercase letters and digits from 0 to 9 only
+    ConstraintDescription: Should contain uppercase, lowercase letters and digits from 0 to 9 only
     Default: westworld-codebuild-for-website-hosting
   paramGitHubLink:
     Type: String
@@ -62,7 +62,7 @@ Resources:
           PolicyDocument:
             Version: 2012-10-17
             Statement:
-              # statement to create/stream CloudWatch
+              # statement to create and stream CloudWatch
               - Action:
                   - logs:CreateLogGroup
                   - logs:CreateLogStream
