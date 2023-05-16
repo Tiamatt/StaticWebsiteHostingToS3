@@ -114,7 +114,7 @@ Resources:
               Pattern: PUSH
             - Type: HEAD_REF
               Pattern: ^refs/heads/main # for feature branches use: ^refs/heads/feature/.* 
-      Environment: # use Linux OS for build
+      Environment: # use Ubuntu standard v7
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_SMALL
         Image: aws/codebuild/standard:7.0
@@ -128,7 +128,7 @@ Resources:
       LogsConfig:
         CloudWatchLogs:
           Status: ENABLED
-          GroupName: !Sub ${paramCodeBuildProjectName}-CloudWatchLogs
+          GroupName: !Sub ${paramCodeBuildProjectName}-cloud-watch-logs
       Tags:
         - Key: mastering-cloudformation
           Value:  !Ref paramUniqueTagName
