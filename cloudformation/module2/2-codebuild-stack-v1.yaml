@@ -92,9 +92,6 @@ Resources:
       AuthType: PERSONAL_ACCESS_TOKEN
       ServerType: GITHUB
       Token: !Ref paramPersonalGitHubAccessToken
-      Tags:
-        - Key: mastering-cloudformation
-          Value:  !Ref paramUniqueTagName
 
   # Create a new CodeBuild project that gets the source code from AWS CodeCommit and drops the build artifacts into S3 bucket
   myCodeBuildProject:
