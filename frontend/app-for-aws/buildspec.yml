@@ -1,7 +1,7 @@
 version: 0.2
-# env:
-#   variables:
-#     APP_ENV: 'prod'
+env:
+  variables:
+    APP_ENV: 'prod'
 phases:
   # use the install phase only for installing packages in the build environment
   install:
@@ -24,6 +24,6 @@ phases:
 artifacts:
   #  get files within the dist folder only
   base-directory: 'frontend/app-for-aws/dist*'
-  # discard-paths: yes
+  discard-paths: yes
   files:
     - '**/*'  
