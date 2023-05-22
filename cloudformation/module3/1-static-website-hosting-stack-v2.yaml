@@ -1,0 +1,108 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+## =================== DESCRIPTION =================== ##
+Description: >-
+  AWS CloudFormation sample template
+  - Create a new S3 bucket and it's policy, configure it to host a static website  
+
+## ===================== METADATA ===================== ##
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+      - Label:
+          default: DNS parameters for S3 buckets
+        Parameters:
+          - paramRootDomain
+          - paramSubdomain
+      - Label:
+          default: AWS tag parameters
+        Parameters:
+          - paramUniqueTagName
+
+## ==================== PARAMETERS ==================== ##
+Parameters:
+  paramRootDomain:
+    Description: Specify a root domain for your website (such as example.com)
+    Type: String
+  paramSubdomain:
+    Description: OPTIONAL. Specify a subdomain (such as 'www' or 'apex' for www.example.com or apex.example.com). You can leave it empty to skip.
+    Type: String
+    Default: www
+  paramUniqueTagName:
+    Description: Specify a unique name for tag
+    Type: String
+    Default: static-website-hosting-to-s3
+    AllowedPattern: "[\\x20-\\x7E]*"
+    ConstraintDescription: Must contain only ASCII characters
+
+## ===================== CONDITIONS ===================== ##
+Conditions:
+  # HasSubdomainName is false if paramSubdomain value is empty string
+  HasSubdomainName: !Not [!Equals [!Ref paramSubdomain, '']] 
+
+## ===================== RESOURCES ===================== ##
+Resources:
+  # Create a s3 bucket with the name as your root (naked) domain name (such as example.com)
+  myS3BucketForRootDomain:
+    Type: 'AWS::S3::Bucket'
+    DeletionPolicy: Retain # keep S3 bucket when its stack is deleted
+    Properties:
+      BucketName: !Ref paramRootDomain # use the name of your domain, such as example.com
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+      VersioningConfiguration: # turn versioning on in case we need to rollback newly built files to older version
+        Status: Enabled
+      # AccessControl: PublicRead # throws an error: Bucket cannot have public ACLs set with BlockPublicAccess enabled
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: ObjectWriter
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      Tags:
+        - Key: mastering-cloudformation
+          Value: !Ref paramUniqueTagName
+
+  # OPTIONAL. Create another s3 bucket with the name as your subdomain + domain (such as www.example.com or apex.example.com) 
+  # Configure the bucket to route traffic to the root domain bucket
+  myS3BucketForSubdomain:
+    Condition: HasSubdomainName # skip this resource if paramSubdomain value is empty string
+    Type: 'AWS::S3::Bucket'
+    DeletionPolicy: Retain # keep S3 bucket when its stack is deleted
+    Properties:
+      BucketName: !Sub ${paramSubdomain}.${paramRootDomain} # use the name of subdomain, such as www.example.com
+      WebsiteConfiguration:
+        RedirectAllRequestsTo: # Configure the bucket to route traffic to the root domain bucket
+          HostName: !Ref myS3BucketForRootDomain
+          Protocol: http
+      AccessControl: BucketOwnerFullControl
+      Tags:
+        - Key: mastering-cloudformation
+          Value: !Ref paramUniqueTagName
+
+  # Create a policy for myS3BucketForRootDomain to let Route53 access website content
+  myPolicyForS3BucketForRootDomain:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref myS3BucketForRootDomain
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: PublicReadForGetBucketObjects
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: !Sub "${myS3BucketForRootDomain.Arn}/*"
+
+## ======================= OUTPUT ====================== ##
+Outputs:
+  outputWebsiteURLForRootDomain:
+    Description: Amazon S3 website endpoint for root domain
+    Value: !GetAtt myS3BucketForRootDomain.WebsiteURL
+  outputWebsiteURLForSubomain:
+    Condition: HasSubdomainName
+    Description: Amazon S3 website endpoint for subdomain
+    Value: !GetAtt myS3BucketForSubdomain.WebsiteURL
