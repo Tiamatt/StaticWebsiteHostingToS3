@@ -73,7 +73,7 @@ Resources:
     Type: 'AWS::S3::Bucket'
     DeletionPolicy: Retain # keep S3 bucket when its stack is deleted
     Properties:
-      BucketName: !Sub ${paramSubdomain}.${paramRootDomain} # use the name of subdomain, such as www.example.com
+      BucketName: !Sub ${paramSubdomain}.${paramRootDomain} # use the name of subdomain with domain, such as www.example.com
       WebsiteConfiguration:
         RedirectAllRequestsTo: # Configure the bucket to route traffic to the root domain bucket
           HostName: !Ref myS3BucketForRootDomain
@@ -99,10 +99,10 @@ Resources:
 
 ## ======================= OUTPUT ====================== ##
 Outputs:
-  outputWebsiteURLForRootDomain:
+  outputS3WebsiteURLForRootDomain:
     Description: Amazon S3 website endpoint for root domain
     Value: !GetAtt myS3BucketForRootDomain.WebsiteURL
-  outputWebsiteURLForSubomain:
+  outputS3WebsiteURLForSubomain:
     Condition: HasSubdomainName
     Description: Amazon S3 website endpoint for subdomain
     Value: !GetAtt myS3BucketForSubdomain.WebsiteURL

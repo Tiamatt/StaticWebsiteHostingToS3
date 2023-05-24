@@ -16,11 +16,6 @@ Metadata:
           - paramSubdomain
           - paramHostedZoneId
       - Label:
-          default: S3 website parameters
-        Parameters:
-          - paramWebsiteURLForRootDomain
-          - paramWebsiteURLForSubdomain
-      - Label:
           default: AWS tag parameters
         Parameters:
           - paramUniqueTagName
@@ -36,12 +31,6 @@ Parameters:
     Default: www
   paramHostedZoneId:
     Description: Specify a public hosted zode ID for root domain
-    Type: String
-  paramWebsiteURLForRootDomain:
-    Description: Specify the domain name of the Amazon S3 website endpoint that you created the S3 bucket in (such as example.com.s3-website-us-east-1.amazonaws.com)
-    Type: String
-  paramWebsiteURLForSubdomain:
-    Description: Specify the domain name of the Amazon S3 website endpoint that you created the S3 bucket in for redirection (such as www.example.com.s3-website-us-east-1.amazonaws.com)
     Type: String
   paramUniqueTagName:
     Description: Specify a unique name for tag
@@ -88,7 +77,7 @@ Resources:
         - Name: !Ref paramRootDomain # point to an S3 bucket with root domain in the same account (such as example.com)
           Type: A # 'A' routes traffic to an IPv4 address and some AWS resources
           AliasTarget:
-              DNSName: !Ref paramWebsiteURLForRootDomain 
+              DNSName: !Sub s3-website-${AWS::Region}.amazonaws.com
               HostedZoneId: !FindInMap # note, that ite is different from paramHostedZoneId - this hosted zone is for region that you created the bucket in!
                 - RegionMap
                 - !Ref 'AWS::Region'
@@ -104,18 +93,18 @@ Resources:
         - Name: !Sub ${paramSubdomain}.${paramRootDomain} # point to an S3 bucket with subdomain in the same account (such as www.example.com)
           Type: A # 'A' routes traffic to an IPv4 address and some AWS resources
           AliasTarget:
-              DNSName: !Ref paramWebsiteURLForSubdomain 
+              DNSName: !Sub s3-website-${AWS::Region}.amazonaws.com 
               HostedZoneId: !FindInMap # note, that ite is different from paramHostedZoneId - this hosted zone is for region that you created the bucket in!
                 - RegionMap
                 - !Ref 'AWS::Region'
                 - S3HostedZoneId                
 
 ## ======================= OUTPUT ====================== ##
-Outputs:
-  outputRecordSetGroupNameForRootDomain:
-    Description: The name of the record set group for root domain
-    Value: !Ref myRoute53RecordSetGroupForRootDomain
-  outputRecordSetGroupNameForSubdomain:
+Outputs: 
+  outputWebsiteURLForRootDomain:
+    Description: Website url for root domain
+    Value: !Sub 'http://${paramRootDomain}/'
+  outputWebsiteURLForSubomain:
     Condition: HasSubdomainName 
-    Description: The name of the record set group for subdomain
-    Value: !Ref myRoute53RecordSetGroupForSubdomain  
+    Description: Website url for subdomain
+    Value: !Sub 'http://${paramSubdomain}.${paramRootDomain}/'

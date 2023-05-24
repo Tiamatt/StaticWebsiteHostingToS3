@@ -93,7 +93,7 @@ Resources:
       ServerType: GITHUB
       Token: !Ref paramPersonalGitHubAccessToken
 
-  # Create a new CodeBuild project that gets the source code from AWS CodeCommit and drops the build artifacts into S3 bucket
+  # Create a new CodeBuild project that gets the source code from GitHub and drops the build artifacts into S3 bucket
   myCodeBuildProject:
     Type: AWS::CodeBuild::Project
     Properties:
