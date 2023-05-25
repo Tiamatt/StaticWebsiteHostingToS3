@@ -30,6 +30,9 @@ Parameters:
     AllowedPattern: "[\\x20-\\x7E]*"
     ConstraintDescription: Must contain only ASCII characters
 
+## ==================== CONDITIONS ==================== ##
+# Conditions:
+
 ## =================== RESOURCES =================== ##
 Resources:
   # Create a public hosted zone

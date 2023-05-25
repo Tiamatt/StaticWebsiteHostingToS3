@@ -15,13 +15,13 @@ Metadata:
           default: GitHub parameters
         Parameters:
           - paramPersonalGitHubAccessToken
-          - paramGitHubLink
+          - paramGitHubRepositoryUrl
           - paramBuildSpecRelativePathInGitHub
       - Label:
           default: CodeBuild parameters
         Parameters:
           - paramCodeBuildProjectName
-          - paramS3BucketForRootDomain
+          - paramS3BucketNameForRootDomain
       - Label:
           default: AWS tag parameters
         Parameters:
@@ -34,8 +34,8 @@ Parameters:
     Type: String
     MinLength: 10
     ConstraintDescription: Personal GitHub access token is missing
-  paramGitHubLink:
-    Description: Provide your GitHub link with source code for static website
+  paramGitHubRepositoryUrl:
+    Description: Provide your GitHub repository URL with source code for static website, e.g. https://github.com/my-account/my-repo-name.git
     Type: String
   paramBuildSpecRelativePathInGitHub:
     Description: Provide a relative path for BuildSpec yaml file in source code for static website 
@@ -49,8 +49,8 @@ Parameters:
     AllowedPattern: ^[a-zA-Z][-a-zA-Z0-9]*$
     ConstraintDescription: Should contain uppercase, lowercase letters and digits from 0 to 9 only
     Default: westworld-codebuild-for-website-hosting
-  paramS3BucketForRootDomain:
-    Description: Specify an existing S3 bucket that hosts static website
+  paramS3BucketNameForRootDomain:
+    Description: Specify an existing S3 bucket name that hosts static website, e.g. 'example.com'
     Type: String
   paramUniqueTagName:
     Description: Specify a unique name for tag
@@ -102,8 +102,8 @@ Resources:
                   - s3:GetBucketLocation
                 Effect: Allow
                 Resource:
-                  - !Sub arn:aws:s3:::${paramS3BucketForRootDomain}
-                  - !Sub arn:aws:s3:::${paramS3BucketForRootDomain}/*
+                  - !Sub arn:aws:s3:::${paramS3BucketNameForRootDomain}
+                  - !Sub arn:aws:s3:::${paramS3BucketNameForRootDomain}/*
       Tags:
         - Key: mastering-cloudformation
           Value: !Ref paramUniqueTagName
@@ -124,7 +124,7 @@ Resources:
       Description: CodeBuild project for automatically build of static website hosted on s3
       Source:
         Type: GITHUB
-        Location: !Ref paramGitHubLink
+        Location: !Ref paramGitHubRepositoryUrl
         GitCloneDepth: 1
         BuildSpec: !Ref paramBuildSpecRelativePathInGitHub
         Auth:
@@ -146,7 +146,7 @@ Resources:
       Artifacts: # drop the build artifacts of S3 bucket that hosts static website
         Type: S3
         Name: '/' # store the artifact in the root of the output bucket
-        Location: !Sub arn:aws:s3:::${paramS3BucketForRootDomain}
+        Location: !Ref paramS3BucketNameForRootDomain # !Sub arn:aws:s3:::${paramS3BucketNameForRootDomain}
         EncryptionDisabled: True #disable the encryption of artifacts in a build to see html pages
       LogsConfig:
         CloudWatchLogs:
