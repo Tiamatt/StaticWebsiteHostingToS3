@@ -91,9 +91,9 @@ Resources:
                   - logs:PutLogEvents
                 Effect: Allow
                 Resource:
-                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${paramCodeBuildProjectName}-CloudWatchLogs
-                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${paramCodeBuildProjectName}-CloudWatchLogs:*
-              # statement to access S3 bucket that hosts static website and its object (CodeBuild will save Artofacts there)
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${paramCodeBuildProjectName}-cloud-watch-logs # should match CloudWatchLogs's GroupName under myCodeBuildProject resource
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${paramCodeBuildProjectName}-cloud-watch-logs:* # should match CloudWatchLogs's GroupName under myCodeBuildProject resource
+              # statement to access S3 bucket that hosts static website and its object (CodeBuild will save Artifacts there)
               - Action:
                   - s3:PutObject
                   - s3:GetObject
