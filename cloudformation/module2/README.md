@@ -1,4 +1,4 @@
-# AWS project - Module 2. Automate the build of a Static Website on AWS S3 via CodeBuild and CloudFormation
+# AWS project - Module 2. Automate the build of a Static Website Hosted on AWS S3 via CodeBuild and CloudFormation
 
 ## **Overview**
 In [Module 1](https://dev.to/tiamatt/aws-project-module-1-host-a-static-website-on-aws-s3-via-cloudformation-2pa2), we have created a simple static web app and hosted it on S3 bucket. However we took baby steps to deploy our static content to S3 bucket *manually*. Ideally we want to use a tool that would rebuild the source code *every time* a code change is pushed to the repository and deploy built files to S3 bucket *automatically*.

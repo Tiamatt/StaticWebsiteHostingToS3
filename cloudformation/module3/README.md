@@ -1,6 +1,5 @@
 # AWS project - Module 3. Use Your Custom Domain for Static Website Hosted on AWS S3 via Route 53 and CloudFormation
 
-
 ## **Overview**
 
 In [Module 1](https://dev.to/tiamatt/aws-project-module-1-host-a-static-website-on-aws-s3-via-cloudformation-2pa2), we have created a simple static website and hosted it on S3 bucket. To access our website we used Amazon S3 website endpoint which looked like `http://example.s3-website-us-east-1.amazonaws.com`. However for users the link is too long and hard to remember. If you want your website appear legitimate to visitors you should use a custom domain name such as `http://example.com`.
@@ -23,11 +22,11 @@ The high-level architecture for our project is illustrated in the diagram below:
 In this module we will focus on configuring S3 buckets and Route 53 records so that:
 :eight_spoked_asterisk: your users will be able to use domain name (such as `example.com`) to access your static website hosted on S3 bucket for root domain
 
-![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/g00hpz8icffse4px3ygq.png)
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/53a1r7ffnqnchvrlfsu6.png)
 
 :eight_spoked_asterisk: (optionally) your users will be able to use subdomain (such as `www.example.com`) to access your static website hosted on S3 bucket for root domain by redirecting here from S3 bucket for subdomain
 
-![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/0tu8s40h7hwfx5ntc82l.png)
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/muly9ixofra3itkqs0xj.png)
 
 
 ## **Source code**
@@ -419,7 +418,7 @@ After you create a hosted zone for your domain, such as `example.com`, you need 
 
 :one: In our case we need to create a record to route internet traffic from root domain (such as `example.com`) to S3 bucket that hosts static website. 
 
-![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/g00hpz8icffse4px3ygq.png)
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/53a1r7ffnqnchvrlfsu6.png)
 
 The following piece of code helps to create a new record for S3 bucket for root domain:
 
@@ -475,7 +474,7 @@ See the whole list of hosted zone ids for different AWS services [here](https://
 
 :two: Optionally, we can create a new record for S3 subdomain  bucket which will redirect traffic to S3 bucket for root domain.
 
-![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/0tu8s40h7hwfx5ntc82l.png)
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/muly9ixofra3itkqs0xj.png)
 
 The following piece of code helps to create a new record for S3 bucket for subdomain:
 
@@ -536,7 +535,6 @@ By using a custom domain, we can boost professionalism and make our site more ac
 
 ## **Useful links**
 
-Articles:
 - AWS Official - Use your domain for a static website in an Amazon S3 bucket - https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/getting-started-s3.html
 
 - AWS Official -  What is Amazon Route 53? https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/Welcome.html 
