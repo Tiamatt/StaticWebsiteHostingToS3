@@ -1,5 +1,20 @@
 # Stage 1. Host a static website to S3
 
+## **Architecture**
+
+The high-level architecture for our project is illustrated in the diagram below:
+
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/yq9z2zaddpr3p5b2d4x4.png)
+
+In this module we will focus on configuring S3 buckets and Route 53 records so that:
+:eight_spoked_asterisk: your users will be able to use domain name (such as `example.com`) to access your static website hosted on S3 bucket for root domain
+
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/53a1r7ffnqnchvrlfsu6.png)
+
+:eight_spoked_asterisk: (optionally) your users will be able to use subdomain (such as `www.example.com`) to access your static website hosted on S3 bucket for root domain by redirecting here from S3 bucket for subdomain
+
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/muly9ixofra3itkqs0xj.png)
+
 ## Module 1
 In this module, we are going to deploy a simple static website to S3 bucket via AWS CloudFormation in three simple steps:
 :point_right: Step 1. Create a simple static web app via Angular
