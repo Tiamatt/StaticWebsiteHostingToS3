@@ -6,7 +6,8 @@ The high-level architecture for our project is illustrated in the diagram below:
 
 ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/yq9z2zaddpr3p5b2d4x4.png)
 
-In this module we will focus on configuring S3 buckets and Route 53 records so that:
+Configure S3 buckets and Route 53 records so that:
+
 :eight_spoked_asterisk: your users will be able to use domain name (such as `example.com`) to access your static website hosted on S3 bucket for root domain
 
 ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/53a1r7ffnqnchvrlfsu6.png)
