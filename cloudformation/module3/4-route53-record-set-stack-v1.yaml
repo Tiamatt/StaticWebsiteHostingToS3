@@ -68,7 +68,7 @@ Conditions:
 
 ## ===================== RESOURCES ===================== ##
 Resources:
-  # Create a Route 53 record set group to redirect traffic from root domain (such as example.com) to S3 bucket website URL for  root domain (such as example.com.s3-website-us-east-1.amazonaws.com)
+  # Create a Route 53 record set group to route internet traffic from root domain (such as example.com) to S3 bucket website URL for  root domain (such as example.com.s3-website-us-east-1.amazonaws.com)
   myRoute53RecordSetGroupForRootDomain:
     Type: 'AWS::Route53::RecordSetGroup'
     Properties:
@@ -94,7 +94,7 @@ Resources:
           Type: A # 'A' routes traffic to an IPv4 address and some AWS resources
           AliasTarget:
               DNSName: !Sub s3-website-${AWS::Region}.amazonaws.com 
-              HostedZoneId: !FindInMap # note, that ite is different from paramHostedZoneId - this hosted zone is for region that you created the bucket in!
+              HostedZoneId: !FindInMap # note, that it is different from paramHostedZoneId - this hosted zone is for region that you created the bucket in!
                 - RegionMap
                 - !Ref 'AWS::Region'
                 - S3HostedZoneId                
