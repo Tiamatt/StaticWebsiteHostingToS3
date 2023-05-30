@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: ACFS3 - Certificate creation
+Parameters:
+  DomainName:
+    Type: String
+  SubDomain:
+    Type: String
+  CreateApex:
+    Type: String
+  HostedZoneId:
+    Type: String
+Conditions:
+  CreateApexConfig:
+    Fn::Equals:
+    - Ref: CreateApex
+    - 'yes'
+Resources:
+  Certificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName:
+        Fn::Sub: ${SubDomain}.${DomainName}
+      SubjectAlternativeNames:
+        Fn::If:
+        - CreateApexConfig
+        - - Ref: DomainName
+        - Ref: AWS::NoValue
+      DomainValidationOptions:
+      - DomainName:
+          Fn::Sub: ${SubDomain}.${DomainName}
+        HostedZoneId:
+          Ref: HostedZoneId
+      - Fn::If:
+        - CreateApexConfig
+        - DomainName:
+            Ref: DomainName
+          HostedZoneId:
+            Ref: HostedZoneId
+        - Ref: AWS::NoValue
+      ValidationMethod: DNS
+Outputs:
+  CertificateArn:
+    Description: Issued certificate
+    Value:
+      Ref: Certificate

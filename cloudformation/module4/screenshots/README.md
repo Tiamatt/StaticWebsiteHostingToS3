@@ -1,0 +1,1 @@
+# AWS project - Module 4. an Amazon CloudFront distribution to serve a Static Website Hosted on AWS S3 via CloudFormation

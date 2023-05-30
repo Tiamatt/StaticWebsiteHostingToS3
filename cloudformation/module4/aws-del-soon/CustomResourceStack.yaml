@@ -1,0 +1,128 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: ACFS3 - Cert Provider with DNS validation
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  CopyCustomResource:
+    Type: AWS::CloudFormation::CustomResource
+    Properties:
+      ServiceToken:
+        Fn::GetAtt:
+        - CopyFunction
+        - Arn
+  S3BucketLogs:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      OwnershipControls:
+        Rules:
+        - ObjectOwnership: BucketOwnerPreferred
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: AES256
+      Tags:
+      - Key: Solution
+        Value: ACFS3
+  S3BucketRoot:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: AES256
+      LoggingConfiguration:
+        DestinationBucketName:
+          Ref: S3BucketLogs
+        LogFilePrefix: origin/
+      Tags:
+      - Key: Solution
+        Value: ACFS3
+  CopyLayerVersion:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      ContentUri: s3://solution-builders-us-east-1/amazon-cloudfront-secure-static-site/v0.9/72497fc90941f9f34414fb1e2d62a169
+      CompatibleRuntimes:
+      - nodejs16.x
+  CopyRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+      - PolicyName: S3CopyPolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - s3:GetObject
+            - s3:ListBucket
+            - s3:PutObject
+            - s3:PutObjectAcl
+            Resource:
+            - Fn::Sub:
+              - arn:aws:s3:::${TargetBucket}/*
+              - TargetBucket:
+                  Ref: S3BucketRoot
+            - Fn::Sub:
+              - arn:aws:s3:::${TargetBucket}
+              - TargetBucket:
+                  Ref: S3BucketRoot
+  CopyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://solution-builders-us-east-1/amazon-cloudfront-secure-static-site/v0.9/a516719f76c1ea0c8e378c599af83554
+      Environment:
+        Variables:
+          BUCKET:
+            Ref: S3BucketRoot
+      Handler: witch.staticHandler
+      Layers:
+      - Ref: CopyLayerVersion
+      Role:
+        Fn::GetAtt:
+        - CopyRole
+        - Arn
+      Runtime: nodejs16.x
+      Timeout: 300
+Outputs:
+  S3BucketRoot:
+    Description: Website bucket
+    Value:
+      Ref: S3BucketRoot
+  S3BucketRootName:
+    Description: Website bucket name
+    Value:
+      Fn::GetAtt:
+      - S3BucketRoot
+      - DomainName
+  S3BucketRootArn:
+    Description: Website bucket locator
+    Value:
+      Fn::GetAtt:
+      - S3BucketRoot
+      - Arn
+  S3BucketLogs:
+    Description: Logging bucket
+    Value:
+      Ref: S3BucketLogs
+  S3BucketLogsName:
+    Description: Logging bucket Name
+    Value:
+      Fn::GetAtt:
+      - S3BucketLogs
+      - DomainName
+  CopyFunction:
+    Description: S3 helper function
+    Value:
+      Fn::GetAtt:
+      - CopyFunction
+      - Arn

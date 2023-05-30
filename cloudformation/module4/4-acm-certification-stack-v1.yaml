@@ -1,0 +1,76 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+## =================== DESCRIPTION =================== ##
+Description: >-
+  AWS CloudFormation sample template
+  - Request public SSL/TLS certificate from AWS Certificate Manager (ACM) to use to secure network communications and establish the identity of websites over the Internet 
+
+## ===================== METADATA ===================== ##
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+      - Label:
+          default: DNS parameters
+        Parameters:
+          - paramRootDomain
+          - paramSubdomain
+          - paramHostedZoneId
+      - Label:
+          default: AWS tag parameters
+        Parameters:
+          - paramUniqueTagName
+
+## ==================== PARAMETERS ==================== ##
+Parameters:
+  paramRootDomain:
+    Description: Specify a root domain for your website (such as example.com)
+    Type: String
+  paramSubdomain:
+    Description: OPTIONAL. Specify a subdomain (such as 'www' or 'apex' for www.example.com or apex.example.com). You can leave it empty to skip.
+    Type: String
+    Default: www
+  paramHostedZoneId:
+    Description: Specify a public hosted zode ID for root domain
+    Type: String
+  paramUniqueTagName:
+    Description: Specify a unique name for tag
+    Type: String
+    Default: static-website-hosting-to-s3
+    AllowedPattern: "[\\x20-\\x7E]*"
+    ConstraintDescription: Must contain only ASCII characters
+
+## ==================== MAPPINGS ==================== ##
+# Mappings:
+
+## ==================== CONDITIONS ==================== ##
+# Conditions:
+
+## ==================== CONDITIONS ==================== ##
+Conditions:
+  # HasSubdomain is false if paramSubdomain value is empty string
+  HasSubdomain: !Not [!Equals [!Ref paramSubdomain, '']] 
+
+## ===================== RESOURCES ===================== ##
+Resources:
+  # Request public SSL/TLS certificate
+  mySSLCertificate:
+    Type: 'AWS::CertificateManager::Certificate'
+    Properties:
+      DomainName: !Ref paramRootDomain # root domain (such as example.com)
+      SubjectAlternativeNames: 
+        - !If [HasSubdomain, !Sub '${paramSubdomain}.${paramRootDomain}', !Ref 'AWS::NoValue']  # add subdomain name to certificate if subdomain was specified
+      DomainValidationOptions:
+        - DomainName: !Ref paramRootDomain # DNS record for the root domain
+          HostedZoneId: !Ref paramHostedZoneId
+        - DomainName:  !If [HasSubdomain, !Sub '${paramSubdomain}.${paramRootDomain}', !Ref 'AWS::NoValue'] # DNS record for the subdomain if subdomain was specified
+          HostedZoneId: !Ref paramHostedZoneId
+      ValidationMethod: DNS
+      Tags:
+        - Key: mastering-cloudformation
+          Value: !Ref paramUniqueTagName
+
+## ======================= OUTPUT ====================== ##
+Outputs: 
+  outputCertificateArn:
+    Description: Issued SSL certificate
+    Value: !Ref mySSLCertificate

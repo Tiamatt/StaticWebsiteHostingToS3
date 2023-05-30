@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+## =================== DESCRIPTION =================== ##
+Description: >-
+  AWS CloudFormation sample template
+  - Create records in a public hosted zone in Route 53 to define how you want to route traffic on the internet for a domain, such as example.com, and its subdomains (www.example.com, apex.example.com)
+
+## ===================== METADATA ===================== ##
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+      - Label:
+          default: DNS parameters for S3 buckets
+        Parameters:
+          - paramRootDomain
+      - Label:
+          default: AWS tag parameters
+        Parameters:
+          - paramUniqueTagName
+
+## ==================== PARAMETERS ==================== ##
+Parameters:
+  paramRootDomain:
+    Description: Specify a root domain for your website (such as example.com)
+    Type: String  
+  paramUniqueTagName:
+    Description: Specify a unique name for tag
+    Type: String
+    Default: static-website-hosting-to-s3
+    AllowedPattern: "[\\x20-\\x7E]*"
+    ConstraintDescription: Must contain only ASCII characters
+
+## ==================== CONDITIONS ==================== ##
+# Conditions:
+
+## =================== RESOURCES =================== ##
+Resources:
+  # Create a public hosted zone
+  myRoute53HostedZone:
+    Type: 'AWS::Route53::HostedZone'
+    Properties:
+      HostedZoneConfig: 
+        Comment: !Sub My public hosted zone for ${paramRootDomain}
+      Name: !Ref paramRootDomain
+      HostedZoneTags: 
+        - Key: mastering-cloudformation
+          Value: !Ref paramUniqueTagName
+
+## ======================= OUTPUT ====================== ##
+Outputs:
+  outputRoute53HostedZoneId:
+    Description: Public hosted zone ID (such as Z23ABC4XYZL05B)
+    Value: !GetAtt myRoute53HostedZone.Id # the same as !Ref myRoute53HostedZone  
+  outputRoute53HostedZoneNameServers:
+    Description: List of name servers for newly created public hosted zone
+    Value: !Join [', ', !GetAtt myRoute53HostedZone.NameServers] 
