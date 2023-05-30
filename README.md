@@ -1,4 +1,4 @@
-# Stage 1. Host a static website to S3
+# Host a Static Website to AWS S3 via CloudFormation
 
 ## **Architecture**
 
