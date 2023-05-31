@@ -1,0 +1,75 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+## =================== DESCRIPTION =================== ##
+Description: >-
+  AWS CloudFormation sample template
+  - Create Route 53 resources to route DNS traffic for your domain to your S3 bucket that hosts static website
+
+## ===================== METADATA ===================== ##
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+      - Label:
+          default: CloudFront parameters
+        Parameters:
+          - paramCloudFrontDistributionDomain
+      - Label:
+          default: DNS parameters
+        Parameters:
+          - paramRootDomain
+          - paramHostedZoneId
+      - Label:
+          default: AWS tag parameters
+        Parameters:
+          - paramUniqueTagName
+
+## ==================== PARAMETERS ==================== ##
+Parameters:
+  paramRootDomain:
+    Description: Specify a root domain for your website (such as example.com)
+    Type: String
+  paramHostedZoneId:
+    Description: Specify a public hosted zone ID for root domain
+    Type: String
+  paramCloudFrontDistributionDomain:
+    Description: Specify CloudFront distribution domain name (such as abcdefg1234567.cloudfront.net)
+    Type: String
+  paramUniqueTagName:
+    Description: Specify a unique name for tag
+    Type: String
+    Default: static-website-hosting-to-s3
+    AllowedPattern: "[\\x20-\\x7E]*"
+    ConstraintDescription: Must contain only ASCII characters
+
+## ==================== MAPPINGS ==================== ##
+# Mappings:
+
+## ==================== CONDITIONS ==================== ##
+# Conditions:
+
+## ===================== RESOURCES ===================== ##
+Resources:
+  # Create a Route 53 record set group to route internet traffic from root domain (such as example.com) to CloudFront domain
+  myRoute53RecordSetGroupForRootDomain:
+    Type: 'AWS::Route53::RecordSetGroup'
+    Properties:
+      HostedZoneId: !Ref paramHostedZoneId
+      RecordSets:
+        - Name: !Ref paramRootDomain # point to an S3 bucket with root domain in the same account (such as example.com)
+          Type: A # 'A' routes traffic to an IPv4 address and some AWS resources
+          AliasTarget:
+              DNSName: !Ref paramCloudFrontDistributionDomain
+              HostedZoneId: Z2FDTNDATAQYW2 # DONT change! It is a magical alphanumeric ID provided by AWS team for CloudFront distribution 
+
+## ======================= OUTPUT ====================== ##
+Outputs: 
+  outputWebsiteURLForRootDomain:
+    Description: Website url for root domain
+    Value: !Sub 'https://${paramRootDomain}/'
+
+
+
+
+    
+
+

@@ -58,10 +58,10 @@ Resources:
         Rules:
           - ObjectOwnership: ObjectWriter
       PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
       Tags:
         - Key: mastering-cloudformation
           Value: !Ref paramUniqueTagName

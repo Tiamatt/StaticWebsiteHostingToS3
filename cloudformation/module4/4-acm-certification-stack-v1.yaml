@@ -3,7 +3,7 @@ AWSTemplateFormatVersion: 2010-09-09
 ## =================== DESCRIPTION =================== ##
 Description: >-
   AWS CloudFormation sample template
-  - Request public SSL/TLS certificate from AWS Certificate Manager (ACM) to use to secure network communications and establish the identity of websites over the Internet 
+  - Request public SSL/TLS certificate from AWS Certificate Manager (ACM) for our domain name and all its subdomains to use to secure network communications and establish the identity of websites over the Internet 
 
 ## ===================== METADATA ===================== ##
 Metadata:
@@ -13,7 +13,6 @@ Metadata:
           default: DNS parameters
         Parameters:
           - paramRootDomain
-          - paramSubdomain
           - paramHostedZoneId
       - Label:
           default: AWS tag parameters
@@ -25,12 +24,8 @@ Parameters:
   paramRootDomain:
     Description: Specify a root domain for your website (such as example.com)
     Type: String
-  paramSubdomain:
-    Description: OPTIONAL. Specify a subdomain (such as 'www' or 'apex' for www.example.com or apex.example.com). You can leave it empty to skip.
-    Type: String
-    Default: www
   paramHostedZoneId:
-    Description: Specify a public hosted zode ID for root domain
+    Description: Specify a public hosted zone ID for root domain
     Type: String
   paramUniqueTagName:
     Description: Specify a unique name for tag
@@ -45,11 +40,6 @@ Parameters:
 ## ==================== CONDITIONS ==================== ##
 # Conditions:
 
-## ==================== CONDITIONS ==================== ##
-Conditions:
-  # HasSubdomain is false if paramSubdomain value is empty string
-  HasSubdomain: !Not [!Equals [!Ref paramSubdomain, '']] 
-
 ## ===================== RESOURCES ===================== ##
 Resources:
   # Request public SSL/TLS certificate
@@ -57,13 +47,17 @@ Resources:
     Type: 'AWS::CertificateManager::Certificate'
     Properties:
       DomainName: !Ref paramRootDomain # root domain (such as example.com)
-      SubjectAlternativeNames: 
-        - !If [HasSubdomain, !Sub '${paramSubdomain}.${paramRootDomain}', !Ref 'AWS::NoValue']  # add subdomain name to certificate if subdomain was specified
+      SubjectAlternativeNames:
+        - !Sub '*.${paramRootDomain}' # request a wildcard certificate for all subdomains
       DomainValidationOptions:
         - DomainName: !Ref paramRootDomain # DNS record for the root domain
           HostedZoneId: !Ref paramHostedZoneId
-        - DomainName:  !If [HasSubdomain, !Sub '${paramSubdomain}.${paramRootDomain}', !Ref 'AWS::NoValue'] # DNS record for the subdomain if subdomain was specified
-          HostedZoneId: !Ref paramHostedZoneId
+        # Note: If a certificate with automatic (Route53) DNS validation contains both a base domain name and the wildcard for that domain (e.g., example.com and *.example.com), the corresponding DNS validation records are identical.
+        # This seems to have caused problems for the automated CloudFormation DNS validation. Solving the problem by removing the redundant wildcard entries from the DomainValidationOption.  
+        # Source: https://github.com/aws/aws-cdk/pull/9291 
+        # - DomainName: !Sub '*.${paramRootDomain}' # DNS record for the all subdomains
+        #   HostedZoneId: !Ref paramHostedZoneId
+        #   ValidationDomain: !Ref paramRootDomain  
       ValidationMethod: DNS
       Tags:
         - Key: mastering-cloudformation
@@ -72,5 +66,5 @@ Resources:
 ## ======================= OUTPUT ====================== ##
 Outputs: 
   outputCertificateArn:
-    Description: Issued SSL certificate
+    Description: Issued SSL certificate Arn
     Value: !Ref mySSLCertificate

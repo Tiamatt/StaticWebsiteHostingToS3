@@ -30,7 +30,7 @@ Parameters:
     Type: String
     Default: www
   paramHostedZoneId:
-    Description: Specify a public hosted zode ID for root domain
+    Description: Specify a public hosted zone ID for root domain
     Type: String
   paramUniqueTagName:
     Description: Specify a unique name for tag
