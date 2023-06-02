@@ -4,6 +4,8 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: >-
   AWS CloudFormation sample template
   - Create CloudFront distribution and point it to S3 bucket for root domain (that hosts static website) from which CloudFront gets the files to distribute
+  - Create origin access identity (OAI) which is a special CloudFront user that you can associate with Amazon S3 origins, so that you can secure S3 content
+  - Create a policy for S3 bucket for root domain to let CloudFront OAI access website content
 
 ## ===================== METADATA ===================== ##
 Metadata:
@@ -109,6 +111,30 @@ Resources:
       Tags:
         - Key: mastering-cloudformation
           Value: !Ref paramUniqueTagName
+
+  # Create a policy for S3 bucket for root domain to let CloudFront OAI access website content
+  myPolicyForS3BucketForRootDomain:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref paramRootDomain
+      PolicyDocument:
+        Statement:
+        - Action: 's3:GetObject'
+          Effect: Allow
+          Resource: !Sub 'arn:aws:s3:::${paramRootDomain}/*'
+          Principal:
+            CanonicalUser: !GetAtt myCloudFrontOAI.S3CanonicalUserId
+        # deny access for non SSL access to S3 bucket
+        - Sid: AllowSSLRequestsOnly 
+          Effect: Deny
+          Principal: '*'
+          Action: 's3:*'
+          Resource:
+          - !Sub 'arn:aws:s3:::${paramRootDomain}'
+          - !Sub 'arn:aws:s3:::${paramRootDomain}/*'
+          Condition:
+            Bool:
+              'aws:SecureTransport': false
 
 ## =================== OUTPUT =================== ##
 Outputs:  
