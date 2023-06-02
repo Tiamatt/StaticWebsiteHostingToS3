@@ -42,7 +42,8 @@ Parameters:
 
 ## ===================== RESOURCES ===================== ##
 Resources:
-  # Request public SSL/TLS certificate
+  # request public SSL/TLS certificate from AWS Certificate Manager (ACM) for our domain name and all its subdomains 
+  # it helps to secure network communications and establish the identity of websites over the Internet 
   mySSLCertificate:
     Type: 'AWS::CertificateManager::Certificate'
     Properties:

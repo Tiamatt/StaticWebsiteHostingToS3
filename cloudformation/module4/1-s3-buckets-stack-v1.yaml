@@ -3,7 +3,8 @@ AWSTemplateFormatVersion: 2010-09-09
 ## =================== DESCRIPTION =================== ##
 Description: >-
   AWS CloudFormation sample template
-  - Create a new S3 bucket and it's policy, configure it to host a static website  
+  - Create an S3 bucket for subdomain that stores static website content (such as www.example.com). Don't configure it to host website
+  - Create another S3 bucket for your root domain (such as example.com). Set it up to redirect requests to S3 bucket for subdomain (such as from example.com to www.example.com)
 
 ## ===================== METADATA ===================== ##
 Metadata:
@@ -35,49 +36,42 @@ Parameters:
     AllowedPattern: "[\\x20-\\x7E]*"
     ConstraintDescription: Must contain only ASCII characters
 
-## ===================== CONDITIONS ===================== ##
-Conditions:
-  # HasSubdomainName is false if paramSubdomain value is empty string
-  HasSubdomainName: !Not [!Equals [!Ref paramSubdomain, '']] 
+## ==================== MAPPINGS ==================== ##
+# Mappings:
 
-## ===================== RESOURCES ===================== ##
+## ==================== CONDITIONS ==================== ##
+# Conditions:
+
+## =================== RESOURCES =================== ##
 Resources:
-  # Create a s3 bucket with the name as your root (naked) domain name (such as example.com)
+  # create an S3 bucket for subdomain that stores static website content (such as www.example.com)
+  # don't configure it to host website
+  myS3BucketForSubdomain:
+    Type: 'AWS::S3::Bucket'
+    DeletionPolicy: Retain # keep S3 bucket when its stack is deleted
+    Properties:
+      BucketName: !Sub ${paramSubdomain}.${paramRootDomain} # use the name of subdomain with domain, such as www.example.com
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+      VersioningConfiguration: # turn versioning on in case we need to rollback newly built files to older version
+        Status: Enabled
+      AccessControl: BucketOwnerFullControl  
+      Tags:
+        - Key: mastering-cloudformation
+          Value: !Ref paramUniqueTagName
+
+  # create another S3 bucket for your root domain (such as example.com)
+  # set it up to redirect requests to S3 bucket for subdomain (such as from example.com to www.example.com)
   myS3BucketForRootDomain:
     Type: 'AWS::S3::Bucket'
     DeletionPolicy: Retain # keep S3 bucket when its stack is deleted
     Properties:
       BucketName: !Ref paramRootDomain # use the name of your domain, such as example.com
       WebsiteConfiguration:
-        IndexDocument: index.html
-        ErrorDocument: error.html
-      VersioningConfiguration: # turn versioning on in case we need to rollback newly built files to older version
-        Status: Enabled
-      # AccessControl: PublicRead # throws an error: Bucket cannot have public ACLs set with BlockPublicAccess enabled
-      OwnershipControls:
-        Rules:
-          - ObjectOwnership: ObjectWriter
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      Tags:
-        - Key: mastering-cloudformation
-          Value: !Ref paramUniqueTagName
-
-  # OPTIONAL. Create another s3 bucket with the name as your subdomain + domain (such as www.example.com or apex.example.com) 
-  # Configure the bucket to route traffic to the root domain bucket
-  myS3BucketForSubdomain:
-    Condition: HasSubdomainName # skip this resource if paramSubdomain value is empty string
-    Type: 'AWS::S3::Bucket'
-    DeletionPolicy: Retain # keep S3 bucket when its stack is deleted
-    Properties:
-      BucketName: !Sub ${paramSubdomain}.${paramRootDomain} # use the name of subdomain with domain, such as www.example.com
-      WebsiteConfiguration:
         RedirectAllRequestsTo: # Configure the bucket to route traffic to the root domain bucket
-          HostName: !Ref myS3BucketForRootDomain
-          Protocol: http
+          HostName: !Ref myS3BucketForSubdomain
+          Protocol: https
       AccessControl: BucketOwnerFullControl
       Tags:
         - Key: mastering-cloudformation
@@ -88,7 +82,18 @@ Outputs:
   outputS3WebsiteURLForRootDomain:
     Description: Amazon S3 website endpoint for root domain
     Value: !GetAtt myS3BucketForRootDomain.WebsiteURL
-  outputS3WebsiteURLForSubomain:
-    Condition: HasSubdomainName
+  outputS3DomainNameForRootDomain:
+    Description:  IPv4 DNS name of S3 bucket for root domain
+    Value: !GetAtt myS3BucketForRootDomain.DomainName
+  outputS3RegionalDomainNameForRootDomain:
+    Description:  Regional domain name of S3 bucket for root domain
+    Value: !GetAtt myS3BucketForRootDomain.RegionalDomainName 
+  outputS3WebsiteURLForSubdomain:
     Description: Amazon S3 website endpoint for subdomain
     Value: !GetAtt myS3BucketForSubdomain.WebsiteURL
+  outputS3DomainNameForSubdomain:
+    Description:  IPv4 DNS name of S3 bucket for subdomain
+    Value: !GetAtt myS3BucketForSubdomain.DomainName
+  outputS3RegionalDomainNameForSubdomain:
+    Description:  Regional domain name of S3 bucket for subdomain
+    Value: !GetAtt myS3BucketForSubdomain.RegionalDomainName  
