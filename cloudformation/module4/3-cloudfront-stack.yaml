@@ -68,8 +68,8 @@ Resources:
       DistributionConfig:
         Comment: CloudFront distribution points to S3 bucket for subdomain
         Origins: # info about origins for this distribution
-          - DomainName: !Sub '${paramSubdomain}.${paramRootDomain}.s3.${AWS::Region}.amazonaws.com' # Note: using S3 website endpoint (outputS3WebsiteURLForSubdomain) throws an error. Use regional domain name (outputS3RegionalDomainNameForSubdomain) instead
-            Id: !Sub 'S3Origin-${AWS::StackName}' # unique identifier of an origin access control for this origin
+          - DomainName: !Sub '${paramSubdomain}.${paramRootDomain}.s3.amazonaws.com' # IPv4 DNS name of S3 bucket for subdomain (outputS3DomainNameForSubdomain)
+            Id: !Sub 'S3Origin-${paramSubdomain}.${paramRootDomain}' # unique identifier of an origin access control for this origin
             S3OriginConfig:
               OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${myCloudFrontOAI}'
         Aliases: # info about CNAMEs (alternate domain names), if any, for this distribution
@@ -97,7 +97,7 @@ Resources:
               Forward: none
           MaxTTL: 86400 # in seconds, 24 hours
           MinTTL: 60 # in seconds, 1 min
-          TargetOriginId: !Sub 'S3Origin-${AWS::StackName}'
+          TargetOriginId: !Sub 'S3Origin-${paramSubdomain}.${paramRootDomain}'
           ViewerProtocolPolicy: 'redirect-to-https' # 'allow-all'
         DefaultRootObject: '/index.html' 
         Enabled: true # enable distribution
@@ -142,12 +142,12 @@ Resources:
       DistributionConfig:
         Comment: CloudFront distribution points to S3 bucket for root domain
         Origins: # info about origins for this distribution
-          - DomainName: !Sub '${paramRootDomain}.s3.${AWS::Region}.amazonaws.com' # Note: using S3 website endpoint gives the following error: 'The parameter Origin DomainName does not refer to a valid S3'
-            Id: !Sub 'S3Origin-${AWS::StackName}' # unique identifier of an origin access control for this origin
+          - DomainName: !Sub '${paramRootDomain}.s3.amazonaws.com' # IPv4 DNS name of S3 bucket for subdomain (outputS3DomainNameForSubdomain)
+            Id: !Sub 'S3Origin-${paramRootDomain}' # unique identifier of an origin access control for this origin
             S3OriginConfig:
               OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${myCloudFrontOAI}'
         Aliases: # info about CNAMEs (alternate domain names), if any, for this distribution
-          - kali
+          - !Sub '${paramRootDomain}'
         # let CloudFront replace HTTP status codes in the 4xx and 5xx range with custom error messages before returning the response to the viewer
         CustomErrorResponses:
           - ErrorCode: 403 # 403 from S3 indicates that the file does not exists
@@ -171,14 +171,14 @@ Resources:
               Forward: none
           MaxTTL: 86400 # in seconds, 24 hours
           MinTTL: 60 # in seconds, 1 min
-          TargetOriginId: !Sub 'S3Origin-${AWS::StackName}'
+          TargetOriginId: !Sub 'S3Origin-${paramRootDomain}'
           ViewerProtocolPolicy: 'redirect-to-https' # 'allow-all'
         DefaultRootObject: '/index.html' 
         Enabled: true # enable distribution
         HttpVersion: http2 # the maximum HTTP version(s) that you want viewers to use to communicate with CloudFront
         PriceClass: PriceClass_All # allowed values: PriceClass_100 | PriceClass_200 | PriceClass_All
         ViewerCertificate:
-          AcmCertificateArn: !Ref mySSLCertificate
+          AcmCertificateArn: !Ref paramACMCertificateArn
           SslSupportMethod: sni-only
       Tags:
         - Key: mastering-cloudformation
@@ -186,9 +186,15 @@ Resources:
 
 ## =================== OUTPUT =================== ##
 Outputs:  
-  myCloudFrontDistributionForSubdomainId:
-    Description: CloudFront distribution ID
+  outputCloudFrontDistributionForSubdomainId:
+    Description: CloudFront distribution ID for subdomain
     Value: !Ref myCloudFrontDistributionForSubdomain
-  myCloudFrontDistributionForSubdomainDomain:
-    Description: CloudFront distribution domain name
+  outputCloudFrontDistributionDomainNameForSubdomain:
+    Description: CloudFront distribution domain name for subdomain
     Value: !GetAtt myCloudFrontDistributionForSubdomain.DomainName
+  outputCloudFrontDistributionForRootDomainId:
+    Description: CloudFront distribution ID for root domain
+    Value: !Ref myCloudFrontDistributionForRootDomain
+  outputCloudFrontDistributionDomainNameForRootDomain:
+    Description: CloudFront distribution domain name for root domain
+    Value: !GetAtt myCloudFrontDistributionForRootDomain.DomainName  

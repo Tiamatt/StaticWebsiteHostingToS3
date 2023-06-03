@@ -5,6 +5,7 @@ Description: >-
   AWS CloudFormation sample template
   - Create an S3 bucket for subdomain that stores static website content (such as www.example.com). Don't configure it to host website
   - Create another S3 bucket for your root domain (such as example.com). Set it up to redirect requests to S3 bucket for subdomain (such as from example.com to www.example.com)
+  - Note: both buckets are private. A new policy for S3 bucket for subdomain will be created in `3-cloudfront-stack-v1.yaml` template to let CloudFront OAI access S3 bucket content
 
 ## ===================== METADATA ===================== ##
 Metadata:
