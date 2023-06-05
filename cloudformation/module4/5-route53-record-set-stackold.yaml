@@ -19,7 +19,7 @@ Metadata:
         Parameters:
           - paramRootDomain
           - paramSubdomain
-          - paramHostedZoneId
+          # - paramHostedZoneId
       - Label:
           default: AWS tag parameters
         Parameters:
@@ -40,9 +40,9 @@ Parameters:
     Description: OPTIONAL. Specify a subdomain (such as 'www' or 'apex' for www.example.com or apex.example.com). You can leave it empty to skip.
     Type: String
     Default: www  
-  paramHostedZoneId:
-    Description: Specify a public hosted zone ID for root domain
-    Type: String
+  # paramHostedZoneId:
+  #   Description: Specify a public hosted zone ID for root domain
+  #   Type: String
   paramUniqueTagName:
     Description: Specify a unique name for tag
     Type: String
@@ -58,25 +58,34 @@ Parameters:
 
 ## ===================== RESOURCES ===================== ##
 Resources:
-  # create a Route 53 record set group to route DNS traffic to CloudFront domain for both - domain and subdomain
-  myRoute53RecordSetGroup:
+  # create a Route 53 record set group to route DNS traffic for subdomain (such as www.example.com) to CloudFront domain
+  myRoute53RecordSetGroupForSubdomain:
     Type: 'AWS::Route53::RecordSetGroup'
     Properties:
       Comment: Route53 record for subdomain
-      # HostedZoneName: !Sub '${paramRootDomain}.'  # keep the dot
-      HostedZoneId: !Ref paramHostedZoneId
+      HostedZoneName: !Sub '${paramRootDomain}.'  # keep the dot
+      # HostedZoneId: !Ref paramHostedZoneId
       RecordSets:
-        # for subdomain (such as www.example.com)
-        - Name: !Sub '${paramSubdomain}.${paramRootDomain}.'  # keep the dot
+        - Name: !Sub '${paramSubdomain}.${paramRootDomain}'
           Type: A # 'A' routes traffic to an IPv4 address and some AWS resources. E.g. if the name of the hosted zone is 'example.com' and you want to use www.example.com to route traffic to your distribution, enter 'www.'
           AliasTarget:
               DNSName: !Ref paramCloudFrontDistributionDomainNameForSubdomain
               HostedZoneId: Z2FDTNDATAQYW2 # DONT change! It is a magical alphanumeric ID provided by AWS team for CloudFront distribution 
-        - Name: !Sub '${paramRootDomain}.'  # keep the dot
+  
+  # create a Route 53 record set group to route DNS traffic for root domain (such as example.com) to CloudFront domain
+  myRoute53RecordSetGroupForRootDomain:
+    Type: 'AWS::Route53::RecordSetGroup'
+    Properties:
+      Comment: Route53 record for root domain
+      HostedZoneName: !Sub '${paramRootDomain}.'  # keep the dot
+      # HostedZoneId: !Ref paramHostedZoneId
+      RecordSets:
+        - Name: !Ref paramRootDomain 
           Type: A # 'A' routes traffic to an IPv4 address and some AWS resources. E.g. if the name of the hosted zone is 'example.com' and you want to use www.example.com to route traffic to your distribution, enter 'www.'
           AliasTarget:
               DNSName: !Ref paramCloudFrontDistributionDomainNameForRootDomain
               HostedZoneId: Z2FDTNDATAQYW2 # DONT change! It is a magical alphanumeric ID provided by AWS team for CloudFront distribution 
+
 
 ## ======================= OUTPUT ====================== ##
 Outputs: 

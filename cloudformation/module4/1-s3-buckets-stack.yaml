@@ -3,8 +3,8 @@ AWSTemplateFormatVersion: 2010-09-09
 ## =================== DESCRIPTION =================== ##
 Description: >-
   AWS CloudFormation sample template
-  - Create an S3 bucket for subdomain that stores static website content (such as www.example.com). Don't configure it to host website
-  - Create another S3 bucket for your root domain (such as example.com). Set it up to redirect requests to S3 bucket for subdomain (such as from example.com to www.example.com)
+  - Create S3 bucket for subdomain (such as www.example.com) that stores static website content. Don't configure it to host website
+  - Create S3 bucket for root domain (such as example.com). Set it up to redirect requests to S3 bucket for subdomain (such as from example.com to www.example.com)
   - Note: both buckets are private. A new policy for S3 bucket for subdomain will be created in `3-cloudfront-stack-v1.yaml` template to let CloudFront OAI access S3 bucket content
 
 ## ===================== METADATA ===================== ##
@@ -45,8 +45,7 @@ Parameters:
 
 ## =================== RESOURCES =================== ##
 Resources:
-  # create an S3 bucket for subdomain that stores static website content (such as www.example.com)
-  # don't configure it to host website
+  # create S3 bucket for subdomain (such as www.example.com) that stores static website content. Don't configure it to host website
   myS3BucketForSubdomain:
     Type: 'AWS::S3::Bucket'
     DeletionPolicy: Retain # keep S3 bucket when its stack is deleted
@@ -57,20 +56,19 @@ Resources:
         ErrorDocument: error.html
       VersioningConfiguration: # turn versioning on in case we need to rollback newly built files to older version
         Status: Enabled
-      AccessControl: BucketOwnerFullControl  
+      AccessControl: BucketOwnerFullControl
       Tags:
         - Key: mastering-cloudformation
           Value: !Ref paramUniqueTagName
 
-  # create another S3 bucket for your root domain (such as example.com)
-  # set it up to redirect requests to S3 bucket for subdomain (such as from example.com to www.example.com)
+  # create S3 bucket for root domain (such as example.com). Set it up to redirect requests to S3 bucket for subdomain (such as from example.com to www.example.com)
   myS3BucketForRootDomain:
     Type: 'AWS::S3::Bucket'
     DeletionPolicy: Retain # keep S3 bucket when its stack is deleted
     Properties:
       BucketName: !Ref paramRootDomain # use the name of your domain, such as example.com
       WebsiteConfiguration:
-        RedirectAllRequestsTo: # Configure the bucket to route traffic to the root domain bucket
+        RedirectAllRequestsTo: # Configure the bucket to route traffic to the subdomain bucket
           HostName: !Ref myS3BucketForSubdomain
           Protocol: https
       AccessControl: BucketOwnerFullControl

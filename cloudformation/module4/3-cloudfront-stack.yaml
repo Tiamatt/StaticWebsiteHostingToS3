@@ -6,6 +6,8 @@ Description: >-
   - Create an Origin Access Identity (OAI) which is a special CloudFront user that you can associate with Amazon S3 origins, so that you can secure S3 content 
   - Create CloudFront distribution for subdomain. Point it to S3 bucket for subdomain (that contains static website, such as www.example.com) from which CloudFront gets the files to distribute
   - Create a policy for S3 bucket for subdomain (that contains static website, such as www.example.com) to let CloudFront OAI access S3 bucket content
+  - Create CloudFront distribution for root domain. Point it to S3 bucket for root domain (that redirects requests to S3 bucket for subdomain, such as from example.com to www.example.com)
+  - 
 
 ## ===================== METADATA ===================== ##
 Metadata:
@@ -60,15 +62,14 @@ Resources:
         # a comment to describe the origin access identity
         Comment: 'OAI for S3 origins'
 
-  # create CloudFront distribution for subdomain
-  # point it to S3 bucket for subdomain (that contains static website, such as www.example.com) from which CloudFront gets the files to distribute
+  # create CloudFront distribution for subdomain. Point it to S3 bucket for subdomain (that contains static website, such as www.example.com) from which CloudFront gets the files to distribute
   myCloudFrontDistributionForSubdomain:
     Type: 'AWS::CloudFront::Distribution'
     Properties:
       DistributionConfig:
         Comment: CloudFront distribution points to S3 bucket for subdomain
         Origins: # info about origins for this distribution
-          - DomainName: !Sub '${paramSubdomain}.${paramRootDomain}.s3.amazonaws.com' # IPv4 DNS name of S3 bucket for subdomain (outputS3DomainNameForSubdomain)
+          - DomainName: !Sub '${paramSubdomain}.${paramRootDomain}.s3.${AWS::Region}.amazonaws.com' # Regional domain name of S3 bucket for subdomain (outputS3RegionalDomainNameForSubomain)
             Id: !Sub 'S3Origin-${paramSubdomain}.${paramRootDomain}' # unique identifier of an origin access control for this origin
             S3OriginConfig:
               OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${myCloudFrontOAI}'
@@ -99,7 +100,7 @@ Resources:
           MinTTL: 60 # in seconds, 1 min
           TargetOriginId: !Sub 'S3Origin-${paramSubdomain}.${paramRootDomain}'
           ViewerProtocolPolicy: 'redirect-to-https' # 'allow-all'
-        DefaultRootObject: '/index.html' 
+        DefaultRootObject: 'index.html' 
         Enabled: true # enable distribution
         HttpVersion: http2 # the maximum HTTP version(s) that you want viewers to use to communicate with CloudFront
         PriceClass: PriceClass_All # allowed values: PriceClass_100 | PriceClass_200 | PriceClass_All
@@ -134,18 +135,26 @@ Resources:
             Bool:
               'aws:SecureTransport': false
 
-  # create CloudFront distribution for root domain
-  # point it to S3 bucket for root domain (that redirects requests to S3 bucket for subdomain, such as from example.com to www.example.com)
+  # create CloudFront distribution for root domain. Point it to S3 bucket for root domain (that redirects requests to S3 bucket for subdomain, such as from example.com to www.example.com)
   myCloudFrontDistributionForRootDomain:
     Type: 'AWS::CloudFront::Distribution'
     Properties:
       DistributionConfig:
         Comment: CloudFront distribution points to S3 bucket for root domain
         Origins: # info about origins for this distribution
-          - DomainName: !Sub '${paramRootDomain}.s3.amazonaws.com' # IPv4 DNS name of S3 bucket for subdomain (outputS3DomainNameForSubdomain)
-            Id: !Sub 'S3Origin-${paramRootDomain}' # unique identifier of an origin access control for this origin
-            S3OriginConfig:
-              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${myCloudFrontOAI}'
+          # Important! Known issue with Cloudfront to s3 redirect giving Access denied error
+          # see https://stackoverflow.com/questions/22740084/amazon-s3-redirect-and-cloudfront 
+          # - DomainName: !Sub '${paramRootDomain}.s3.${AWS::Region}.amazonaws.com' # Regional domain name of S3 bucket for root domain (outputS3RegionalDomainNameForRootDomain)
+          - DomainName: !Sub '${paramRootDomain}.s3-website-${AWS::Region}.amazonaws.com' # use Amazon S3 website endpoint for root domain 
+            Id: !Sub 'RedirectS3Origin-${paramRootDomain}' # unique identifier of an origin access control for this origin
+            # Important, for Amazon S3 website endpoint as DomainName need to be configured as CustomOriginConfig and NOT as S3OriginConfig
+            # It resolves the following issue: "Resource handler returned message: "Invalid request provided: The parameter Origin DomainName does not refer to a valid S3 bucket.""
+            # see https://stackoverflow.com/questions/40095803/how-do-you-create-an-aws-cloudfront-distribution-that-points-to-an-s3-static-ho 
+            # see https://github.com/hashicorp/terraform-provider-aws/issues/7847 
+            CustomOriginConfig:
+              HTTPPort: 80 # required
+              HTTPSPort: 443 # required
+              OriginProtocolPolicy: 'http-only' 
         Aliases: # info about CNAMEs (alternate domain names), if any, for this distribution
           - !Sub '${paramRootDomain}'
         # let CloudFront replace HTTP status codes in the 4xx and 5xx range with custom error messages before returning the response to the viewer
@@ -171,9 +180,9 @@ Resources:
               Forward: none
           MaxTTL: 86400 # in seconds, 24 hours
           MinTTL: 60 # in seconds, 1 min
-          TargetOriginId: !Sub 'S3Origin-${paramRootDomain}'
+          TargetOriginId: !Sub 'RedirectS3Origin-${paramRootDomain}'
           ViewerProtocolPolicy: 'redirect-to-https' # 'allow-all'
-        DefaultRootObject: '/index.html' 
+        DefaultRootObject: 'index.html' 
         Enabled: true # enable distribution
         HttpVersion: http2 # the maximum HTTP version(s) that you want viewers to use to communicate with CloudFront
         PriceClass: PriceClass_All # allowed values: PriceClass_100 | PriceClass_200 | PriceClass_All
@@ -183,6 +192,30 @@ Resources:
       Tags:
         - Key: mastering-cloudformation
           Value: !Ref paramUniqueTagName
+
+  # # create a policy for S3 bucket for root domain (that contains static website, such as www.example.com) to let CloudFront OAI access S3 bucket content
+  # myPolicyForS3BucketForRootDomain:
+  #   Type: 'AWS::S3::BucketPolicy'
+  #   Properties:
+  #     Bucket: !Sub '${paramRootDomain}'
+  #     PolicyDocument:
+  #       Statement:
+  #       - Action: 's3:GetObject'
+  #         Effect: Allow
+  #         Resource: !Sub 'arn:aws:s3:::${paramRootDomain}/*'
+  #         Principal:
+  #           CanonicalUser: !GetAtt myCloudFrontOAI.S3CanonicalUserId
+  #       # deny access for non SSL access to S3 bucket
+  #       - Sid: AllowSSLRequestsOnly 
+  #         Effect: Deny
+  #         Principal: '*'
+  #         Action: 's3:*'
+  #         Resource:
+  #         - !Sub 'arn:aws:s3:::${paramRootDomain}'
+  #         - !Sub 'arn:aws:s3:::${paramRootDomain}/*'
+  #         Condition:
+  #           Bool:
+  #             'aws:SecureTransport': false
 
 ## =================== OUTPUT =================== ##
 Outputs:  
