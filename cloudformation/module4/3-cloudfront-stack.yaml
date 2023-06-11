@@ -7,7 +7,6 @@ Description: >-
   - Create CloudFront distribution for subdomain. Point it to S3 bucket for subdomain (that contains static website, such as www.example.com) from which CloudFront gets the files to distribute
   - Create a policy for S3 bucket for subdomain (that contains static website, such as www.example.com) to let CloudFront OAI access S3 bucket content
   - Create CloudFront distribution for root domain. Point it to S3 bucket for root domain (that redirects requests to S3 bucket for subdomain, such as from example.com to www.example.com)
-  - 
 
 ## ===================== METADATA ===================== ##
 Metadata:
