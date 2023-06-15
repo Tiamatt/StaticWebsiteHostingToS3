@@ -144,7 +144,7 @@ Resources:
           # Important! Known issue with Cloudfront to s3 redirect giving Access denied error
           # see https://stackoverflow.com/questions/22740084/amazon-s3-redirect-and-cloudfront 
           # - DomainName: !Sub '${paramRootDomain}.s3.${AWS::Region}.amazonaws.com' # Regional domain name of S3 bucket for root domain (outputS3RegionalDomainNameForRootDomain)
-          - DomainName: !Sub '${paramRootDomain}.s3-website-${AWS::Region}.amazonaws.com' # use Amazon S3 website endpoint for root domain 
+          - DomainName: !Sub '${paramRootDomain}.s3-website-${AWS::Region}.amazonaws.com' # use Amazon S3 website endpoint for root domain (outputS3WebsiteURLForRootDomain)
             Id: !Sub 'RedirectS3Origin-${paramRootDomain}' # unique identifier of an origin access control for this origin
             # Important, for Amazon S3 website endpoint as DomainName need to be configured as CustomOriginConfig and NOT as S3OriginConfig
             # It resolves the following issue: "Resource handler returned message: "Invalid request provided: The parameter Origin DomainName does not refer to a valid S3 bucket.""
