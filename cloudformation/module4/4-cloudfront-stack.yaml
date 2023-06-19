@@ -192,7 +192,7 @@ Resources:
         - Key: mastering-cloudformation
           Value: !Ref paramUniqueTagName
 
-  # # create a policy for S3 bucket for root domain (that contains static website, such as www.example.com) to let CloudFront OAI access S3 bucket content
+  # # create a policy for S3 bucket for root domain (that redirect the request to S3 bucket for subdomain) to let CloudFront OAI access S3 bucket content
   # myPolicyForS3BucketForRootDomain:
   #   Type: 'AWS::S3::BucketPolicy'
   #   Properties:
