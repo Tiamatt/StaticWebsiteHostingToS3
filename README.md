@@ -77,3 +77,24 @@ The high-level architecture for our project is illustrated in the diagram below:
 
 ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/yq9z2zaddpr3p5b2d4x4.png)
 
+## Module 4
+
+In the past three modules, we successfully created a basic static web app and deployed it on an S3 bucket. We also set up a CodeBuild project to automate the website's build process on AWS S3. Additionally, we configured Route 53 to enable the use of a custom domain for our S3-hosted static website. Now, let's continue enhancing our architecture further.
+
+In this module we are going to optimize our application’s performance and security while effectively managing cost by setting up Amazon CloudFront to work with your S3 bucket to serve and protect the content. 
+
+In this module I'll show you how to configure CloudFront distribution to serve a simple static website in ten steps via CloudFormation:
+✳️ Step 1. Register a custom domain name
+✳️ Step 2. Create S3 buckets for your root domain and subdomain
+✳️ Step 3. Create Route 53 hosted zone and configure your domain
+✳️ Step 4: Request public SSL/TLS certificate from AWS Certificate Manager (ACM) for our domain name and all its subdomains 
+✳️ Step 5. Create an Origin Access Identity (OAI) as special CloudFront user
+✳️ Step 6. Create CloudFront distribution for subdomain that contains static website
+✳️ Step 7. Create a policy for S3 bucket for subdomain to allow OAI to access bucket content
+✳️ Step 8. Create another CloudFront distribution for root domain that redirects requests to S3 bucket for subdomain
+✳️ Step 9. Create a Route 53 record set to route DNS traffic for root domain and subdomain to CloudFront domain
+✳️ Step 10. Test your static website
+
+The high-level architecture for our project is illustrated in the diagram below:
+
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/q310reo394suguhddayx.png)
