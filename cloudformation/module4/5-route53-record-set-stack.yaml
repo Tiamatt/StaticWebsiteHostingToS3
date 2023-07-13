@@ -3,8 +3,8 @@ AWSTemplateFormatVersion: 2010-09-09
 ## =================== DESCRIPTION =================== ##
 Description: >-
   AWS CloudFormation sample template
-  - Create a Route 53 record set group to route DNS traffic for subdomain (such as www.example.com) to CloudFront domain
-  - Create a Route 53 record set group to route DNS traffic for root domain (such as example.com) to CloudFront domain
+  - Create a Route 53 record set group to route DNS traffic for root domain and subdomain to CloudFront domain
+
 ## ===================== METADATA ===================== ##
 Metadata:
   'AWS::CloudFormation::Interface':
@@ -62,16 +62,17 @@ Resources:
   myRoute53RecordSetGroup:
     Type: 'AWS::Route53::RecordSetGroup'
     Properties:
-      Comment: Route53 record for subdomain
+      Comment: Route53 record for CloudFront distributions for root domain and subdomain
       # HostedZoneName: !Sub '${paramRootDomain}.'  # keep the dot
       HostedZoneId: !Ref paramHostedZoneId
       RecordSets:
-        # for subdomain (such as www.example.com)
+        # for CloudFront distributions subdomain (such as www.example.com)
         - Name: !Sub '${paramSubdomain}.${paramRootDomain}.'  # keep the dot
           Type: A # 'A' routes traffic to an IPv4 address and some AWS resources. E.g. if the name of the hosted zone is 'example.com' and you want to use www.example.com to route traffic to your distribution, enter 'www.'
           AliasTarget:
               DNSName: !Ref paramCloudFrontDistributionDomainNameForSubdomain
               HostedZoneId: Z2FDTNDATAQYW2 # DONT change! It is a magical alphanumeric ID provided by AWS team for CloudFront distribution 
+        # for CloudFront distributions root domain (such as example.com)
         - Name: !Sub '${paramRootDomain}.'  # keep the dot
           Type: A # 'A' routes traffic to an IPv4 address and some AWS resources. E.g. if the name of the hosted zone is 'example.com' and you want to use www.example.com to route traffic to your distribution, enter 'www.'
           AliasTarget:

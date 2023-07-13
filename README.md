@@ -76,3 +76,4 @@ In this module I'll show you how to configure Route 53 to use your domain to acc
 The high-level architecture for our project is illustrated in the diagram below:
 
 ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/yq9z2zaddpr3p5b2d4x4.png)
+
